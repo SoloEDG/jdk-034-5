@@ -1,6 +1,6 @@
 import { centroid, distance } from '../../../shared/geometry';
 import type { Balance, Contacts, Limb, Point, Route } from '../../../shared/types';
-import { grip, holdAt } from '../../wall';
+import { grip, holdAt } from '../../wall/lib/holds';
 
 export const limbs: Limb[] = ['lh', 'rh', 'lf', 'rf'];
 export const limbNames = { lh: '左手', rh: '右手', lf: '左脚', rf: '右脚' };

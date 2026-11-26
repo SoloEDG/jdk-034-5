@@ -1,12 +1,13 @@
 import { computed, ref } from 'vue';
-import { routes } from '../lib/routes';
+import { useRouteRegistry } from './useRouteRegistry';
 
 export function useWall() {
-  const routeId = ref(routes[0].id);
-  const route = computed(() => routes.find(item => item.id === routeId.value) ?? routes[0]);
+  const { allRoutes } = useRouteRegistry();
+  const routeId = ref(allRoutes.value[0].id);
+  const route = computed(() => allRoutes.value.find(item => item.id === routeId.value) ?? allRoutes.value[0]);
   function choose(id: string) {
-    if (routes.some(item => item.id === id)) routeId.value = id;
+    if (allRoutes.value.some(item => item.id === id)) routeId.value = id;
   }
 
-  return { routeId, route, choose };
+  return { routeId, route, routes: allRoutes, choose };
 }

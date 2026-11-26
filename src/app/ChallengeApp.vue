@@ -6,10 +6,12 @@ import { ClimberPose, LimbControls, limbNames } from '../features/limbs';
 import { StaminaGauge } from '../features/stamina';
 import { ActionPanel } from '../features/actions';
 import { AttemptList, AttemptReview } from '../features/records';
+import GeneratorStudio from '../features/generator/ui/GeneratorStudio.vue';
+import { classifyAttempt } from '../features/records/lib/classify';
 import { useChallenge } from './useChallenge';
 
 const {
-  routeId, shownRoute, shownContacts, selected, shownStates, shownBalance, targetMark, locked,
+  routes, routeId, shownRoute, shownContacts, selected, shownStates, shownBalance, targetMark, locked,
   remaining, max, preview, result, target, moves, attempts, active, frame, step, stored,
   start, chooseLimb, chooseHold, execute, open, close, jump,
 } = useChallenge();
@@ -17,17 +19,30 @@ const caption = computed(() => active.value ? '历史记录 · 第 ' + (step.val
   : result.value === 'success' ? '完攀 · ' + moves.value.length + ' 步'
     : result.value === 'fall' ? '坠落 · 可从挑战记录回看'
       : limbNames[selected.value] + ' · ' + moves.value.length + ' 步');
+
+const activeVerdict = computed(() => active.value && shownRoute.value.certificate
+  ? classifyAttempt(shownRoute.value, active.value)
+  : null);
+
+function startGenerated(id: string) {
+  start(id);
+  if (typeof document !== 'undefined') {
+    window.setTimeout(() => document.getElementById('challenge-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  }
+}
 </script>
 
 <template>
   <header class="masthead">
-    <div class="brand"><span class="brand-icon"><Mountain :size="24" /></span><strong>CRUX</strong><span>攀岩路线挑战</span></div>
-    <div class="top-status"><i></i> {{ active ? '历史回看' : result === 'success' ? '已完攀' : result === 'fall' ? '已结束' : '抱石挑战' }}</div>
+    <div class="brand"><span class="brand-icon"><Mountain :size="24" /></span><strong>CRUX</strong><span>误导抱石路线生成器</span></div>
+    <div class="top-status"><i></i> {{ active ? '历史回看' : result === 'success' ? '已完攀' : result === 'fall' ? '已结束' : '可生成 / 可挑战' }}</div>
   </header>
 
   <main class="workspace">
-    <div class="dashboard">
-      <RouteList :active="routeId" :reviewing="Boolean(active)" @choose="start" />
+    <GeneratorStudio @start="startGenerated" />
+
+    <div id="challenge-dashboard" class="dashboard">
+      <RouteList :routes="routes" :active="routeId" :reviewing="Boolean(active)" @choose="start" />
       <WallBoard :route="shownRoute" :states="shownStates" :locked="locked" :caption="caption" @choose="chooseHold" @reset="start(routeId)">
         <template #climber>
           <ClimberPose :route="shownRoute" :contacts="shownContacts" :selected="frame?.move.limb ?? selected"
@@ -37,6 +52,10 @@ const caption = computed(() => active.value ? '历史记录 · 第 ' + (step.val
       <aside class="console" aria-label="攀岩控制台">
         <div class="console-head"><Target :size="18" /><b>攀岩控制台</b></div>
         <div v-if="frame && active">
+          <div v-if="activeVerdict" class="review-verdict">
+            <span class="verdict-badge" :data-kind="activeVerdict.kind">{{ activeVerdict.label }}</span>
+            <small>按 {{ active.moves.filter(item => !item.failure).length }} 个实际落定动作判定</small>
+          </div>
           <StaminaGauge :remaining="frame.energyAfter" :max="shownRoute.energy" :pending="0" />
           <AttemptReview :attempt="active" :frame="frame" :step="step" @jump="jump" @close="close" />
         </div>
@@ -49,6 +68,6 @@ const caption = computed(() => active.value ? '历史记录 · 第 ' + (step.val
         </template>
       </aside>
     </div>
-    <AttemptList :attempts="attempts" :stored="stored" @open="open" />
+    <AttemptList :attempts="attempts" :stored="stored" :routes="routes" @open="open" />
   </main>
 </template>

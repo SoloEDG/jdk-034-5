@@ -1,5 +1,5 @@
 import type { HoldKind } from '../../../shared/types';
-import { grip } from '../../wall';
+import { grip } from '../../wall/lib/holds';
 
 export function moveCost(travel: number, kind: HoldKind, tilt: number, support: number) {
   const reachCost = Math.max(1, Math.ceil(travel / 44));

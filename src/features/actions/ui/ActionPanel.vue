@@ -6,13 +6,14 @@ import { failures } from '../lib/evaluate';
 
 defineProps<{ preview: Preview | null; invalidTarget: boolean; locked: boolean }>();
 defineEmits<{ execute: [] }>();
+const fmtCost = (value: number) => Math.round(value * 100) / 100;
 </script>
 
 <template>
   <section class="console-section action-panel" aria-label="动作执行">
     <h2>动作预览</h2>
     <dl v-if="preview" class="action-data">
-      <div><dt>{{ limbNames[preview.move.limb] }} → {{ preview.move.target }}</dt><dd>−{{ preview.cost }} 体力</dd></div>
+      <div><dt>{{ limbNames[preview.move.limb] }} → {{ preview.move.target }}</dt><dd>−{{ fmtCost(preview.cost) }} 体力</dd></div>
       <div><dt>距离 / 可触及</dt><dd>{{ preview.distance }} / {{ preview.reach }}</dd></div>
       <div><dt>离点 / 落点支撑余量</dt><dd>{{ preview.support.margin }} / {{ preview.landing.margin }}</dd></div>
     </dl>

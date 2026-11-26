@@ -1,6 +1,6 @@
 import { clamp, distance } from '../../../shared/geometry';
 import type { Contacts, Limb, Route } from '../../../shared/types';
-import { grip, holdAt } from '../../wall';
+import { grip, holdAt } from '../../wall/lib/holds';
 import { body } from './support';
 
 export function isHand(limb: Limb) {

@@ -6,6 +6,7 @@ import { failures } from '../../actions';
 
 defineProps<{ attempt: Attempt; frame: MoveRecord; step: number }>();
 defineEmits<{ jump: [index: number]; close: [] }>();
+const fmt = (value: number) => Math.round(value * 10) / 10;
 </script>
 
 <template>
@@ -20,7 +21,7 @@ defineEmits<{ jump: [index: number]; close: [] }>();
     </div>
     <dl class="action-data">
       <div><dt>{{ limbNames[frame.move.limb] }}</dt><dd>{{ frame.before[frame.move.limb] }} → {{ frame.move.target }}</dd></div>
-      <div><dt>体力变化</dt><dd>{{ frame.energyBefore }} → {{ frame.energyAfter }}</dd></div>
+      <div><dt>体力变化</dt><dd>{{ fmt(frame.energyBefore) }} → {{ fmt(frame.energyAfter) }}</dd></div>
       <div><dt>离点支撑余量</dt><dd>{{ frame.support.margin }}</dd></div>
       <div><dt>落点支撑余量</dt><dd>{{ frame.landing.margin }}</dd></div>
     </dl>

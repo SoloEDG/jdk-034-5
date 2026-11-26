@@ -23,6 +23,93 @@ export interface Route {
   start: Contacts;
   finish: string;
   holds: Hold[];
+  costScale?: number;
+  generator?: RouteGeneratorInfo;
+  certificate?: RouteCertificate;
+}
+
+export interface MaterialQuota extends Record<HoldKind, number> {}
+
+export interface GeneratorInput {
+  holdCount: number;
+  quota: MaterialQuota;
+  energy: number;
+  start: Point;
+  finish: Point;
+  seed: number;
+  proofLimitMs: number;
+}
+
+export interface RouteLineEvidence {
+  id: 'A' | 'B';
+  name: string;
+  middleHolds: string[];
+  moves: MoveRecord[];
+  cost: number;
+  remaining: number;
+}
+
+export interface LureEvidence {
+  name: string;
+  posture: Contacts;
+  moves: MoveRecord[];
+  cost: number;
+  remaining: number;
+  closerDistance: number;
+  splitDistance: number;
+  proof: DeadBranchCertificate;
+}
+
+export interface DeadBranchCertificate {
+  complete: boolean;
+  canFinish: boolean;
+  timedOut: boolean;
+  statesVisited: number;
+  transitionsChecked: number;
+  safeMovesChecked?: number;
+  rootLegalMoves: number;
+  rootBlockedMoves?: number;
+  elapsedMs: number;
+  limitMs: number;
+  rootBranches: RootBranchCoverage[];
+}
+
+export interface RootBranchCoverage {
+  limb: Limb;
+  target: string;
+  cost: number;
+  energyAfter: number;
+  complete: boolean;
+  canFinish: boolean;
+  closed: boolean;
+  failure?: Failure | null;
+}
+
+export interface RouteCertificate {
+  schemaVersion: 1;
+  qualified: boolean;
+  generatedAt: number;
+  input: GeneratorInput;
+  actualQuota: MaterialQuota;
+  seed: number;
+  attempts: number;
+  elapsedMs: number;
+  lines: [RouteLineEvidence, RouteLineEvidence];
+  lure: LureEvidence;
+  classificationHints: {
+    aMiddle: string[];
+    bMiddle: string[];
+    lureHolds: string[];
+    lurePosture: Contacts;
+  };
+}
+
+export interface RouteGeneratorInfo {
+  generated: true;
+  seed: number;
+  blueprint: string;
+  status: 'qualified' | 'unverified';
+  message?: string;
 }
 
 export interface Move {
